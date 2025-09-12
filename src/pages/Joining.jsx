@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
-import { X, Upload } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Upload, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const Joining = () => {
+const JoiningForm = () => {
   const [showJoiningModal, setShowJoiningModal] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [enquiryData, setEnquiryData] = useState([]);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showCandidateList, setShowCandidateList] = useState(true);
+  
   const [joiningFormData, setJoiningFormData] = useState({
     joiningId: '',
     nameAsPerAadhar: '',
@@ -47,6 +53,126 @@ const Joining = () => {
     department: '',
     equipment: ''
   });
+
+  // Fetch ENQUIRY data
+const fetchEnquiryData = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        "https://script.google.com/macros/s/AKfycbwfGaiHaPhexcE9i-A7q9m81IX6zWqpr4lZBe4AkhlTjVl4wCl0v_ltvBibfduNArBVoA/exec?sheet=ENQUIRY&action=fetch"
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (!result.success || !result.data || result.data.length < 7) {
+        throw new Error(result.error || "Not enough rows in enquiry sheet data");
+      }
+
+      // Process enquiry data
+      const enquiryHeaders = result.data[5].map((h) => h.trim());
+      const enquiryDataFromRow7 = result.data.slice(6);
+
+      const getIndex = (headerName) =>
+        enquiryHeaders.findIndex((h) => h === headerName);
+
+      const departmentIndex = getIndex("Department");
+      const columnAAIndex = 26; // Column AA is index 26
+      const columnABIndex = 27; // Column AB is index 27
+
+      const processedEnquiryData = enquiryDataFromRow7
+        .map((row) => ({
+          id: row[getIndex("Timestamp")],
+          indentNo: row[getIndex("Indent Number")],
+          candidateEnquiryNo: row[getIndex("Candidate Enquiry Number")],
+          applyingForPost: row[getIndex("Applying For the Post")],
+          department: row[departmentIndex] || "",
+          candidateName: row[getIndex("Candidate Name")],
+          candidateDOB: row[getIndex("DOB")],
+          candidatePhone: row[getIndex("Candidate Phone Number")],
+          candidateEmail: row[getIndex("Candidate Email")],
+          previousCompany: row[getIndex("Previous Company Name")],
+          jobExperience: row[getIndex("Job Experience")] || "",
+          lastSalary: row[getIndex("Last Salary Drawn")] || "",
+          previousPosition: row[getIndex("Previous Position")] || "",
+          reasonForLeaving: row[getIndex("Reason Of Leaving Previous Company")] || "",
+          maritalStatus: row[getIndex("Marital Status")] || "",
+          lastEmployerMobile: row[getIndex("Last Employer Mobile Number")] || "",
+          candidatePhoto: row[getIndex("Candidate Photo")] || "",
+          candidateResume: row[19] || "",
+          referenceBy: row[getIndex("Reference By")] || "",
+          presentAddress: row[getIndex("Present Address")] || "",
+          aadharNo: row[getIndex("Aadhar Number")] || "",
+          designation: row[getIndex("Applying For the Post")] || "",
+          columnAA: row[columnAAIndex] || "", // Column AA value
+          columnAB: row[columnABIndex] || "", // Column AB value
+        }))
+        // Filter for records where Column AA is not null and Column AB is null
+        .filter(candidate => candidate.columnAA && !candidate.columnAB);
+
+      setEnquiryData(processedEnquiryData);
+    } catch (error) {
+      console.error("Error fetching enquiry data:", error);
+      toast.error("Failed to fetch candidate data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEnquiryData();
+  }, []);
+
+  const formatDOB = (dateString) => {
+    if (!dateString) return '';
+    
+    let date;
+    
+    if (dateString instanceof Date) {
+      date = dateString;
+    } else if (typeof dateString === 'string' && dateString.includes('/')) {
+      const parts = dateString.split('/');
+      if (parts.length === 3) {
+        if (parseInt(parts[0]) > 12) {
+          date = new Date(parts[2], parts[1] - 1, parts[0]);
+        } else {
+          date = new Date(parts[2], parts[0] - 1, parts[1]);
+        }
+      }
+    } else {
+      date = new Date(dateString);
+    }
+    
+    if (isNaN(date.getTime())) {
+      return dateString;
+    }
+    
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${year}-${month}-${day}`;
+  };
+
+  // Handle candidate selection and prefill data
+  const handleCandidateSelect = (candidate) => {
+    setSelectedCandidate(candidate);
+    setJoiningFormData(prev => ({
+      ...prev,
+      nameAsPerAadhar: candidate.candidateName || '',
+      designation: candidate.designation || candidate.applyingForPost || '',
+      currentAddress: candidate.presentAddress || '',
+      dobAsPerAadhar: formatDOB(candidate.candidateDOB) || '',
+      mobileNo: candidate.candidatePhone || '',
+      personalEmail: candidate.candidateEmail || '',
+      aadharCardNo: candidate.aadharNo || '',
+      department: candidate.department || '',
+    }));
+    setShowCandidateList(false);
+  };
 
   const handleJoiningInputChange = (e) => {
     const { name, value } = e.target;
@@ -157,135 +283,210 @@ const Joining = () => {
     }
   };
 
-  const handleJoiningSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitting(true);
-    
-    try {
-      // Upload only the required files
-      const uploadPromises = {};
-      const fileFields = [
-        'aadharFrontPhoto',
-        'bankPassbookPhoto'
-      ];
+const updateEnquirySheet = async (enquiryNo, timestamp) => {
+  const URL = 'https://script.google.com/macros/s/AKfycbwfGaiHaPhexcE9i-A7q9m81IX6zWqpr4lZBe4AkhlTjVl4wCl0v_ltvBibfduNArBVoA/exec';
 
-      for (const field of fileFields) {
-        if (joiningFormData[field]) {
-          uploadPromises[field] = uploadFileToDrive(joiningFormData[field]);
-        } else {
-          uploadPromises[field] = Promise.resolve('');
-        }
+  try {
+    const params = new URLSearchParams();
+    params.append('sheetName', 'ENQUIRY');
+    params.append('action', 'updateColumnAB');
+    params.append('enquiryNo', enquiryNo);
+    params.append('timestamp', timestamp);
+
+    const response = await fetch(URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: params,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.success;
+  } catch (error) {
+    console.error('Error updating enquiry sheet:', error);
+    throw new Error(`Failed to update enquiry sheet: ${error.message}`);
+  }
+};
+
+const handleJoiningSubmit = async (e) => {
+  e.preventDefault();
+  setSubmitting(true);
+  
+  try {
+    // Upload only the required files
+    const uploadPromises = {};
+    const fileFields = [
+      'aadharFrontPhoto',
+      'bankPassbookPhoto'
+    ];
+
+    for (const field of fileFields) {
+      if (joiningFormData[field]) {
+        uploadPromises[field] = uploadFileToDrive(joiningFormData[field]);
+      } else {
+        uploadPromises[field] = Promise.resolve('');
       }
+    }
 
-      // Wait for all uploads to complete
-      const uploadedUrls = await Promise.all(
-        Object.values(uploadPromises).map(promise => 
-          promise.catch(error => {
-            console.error('Upload failed:', error);
-            return ''; // Return empty string if upload fails
-          })
-        )
+    // Wait for all uploads to complete
+    const uploadedUrls = await Promise.all(
+      Object.values(uploadPromises).map(promise => 
+        promise.catch(error => {
+          console.error('Upload failed:', error);
+          return ''; // Return empty string if upload fails
+        })
+      )
+    );
+
+    // Map uploaded URLs to their respective fields
+    const fileUrls = {};
+    Object.keys(uploadPromises).forEach((field, index) => {
+      fileUrls[field] = uploadedUrls[index];
+    });
+
+    // Format the timestamp in the required format: 9/8/2025 10:55:38
+    const now = new Date();
+    const formattedTimestamp = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+    
+    // Create an array with all column values in order
+    const rowData = [];
+    
+    // Assign values directly to array indices according to specified columns
+    rowData[0] = formattedTimestamp;           // Column A: Timestamp
+    rowData[1] = joiningFormData.joiningId;    // Column B: Joining ID
+    rowData[2] = joiningFormData.nameAsPerAadhar;   // Column C: Name As Per Aadhar
+    rowData[3] = joiningFormData.fatherName;   // Column D: Father Name
+    rowData[4] = joiningFormData.dateOfJoining; // Column E: Date Of Joining
+    rowData[5] = joiningFormData.designation; // Column F: Designation
+    rowData[6] = fileUrls.aadharFrontPhoto;    // Column G: Aadhar card
+    rowData[7] = selectedCandidate?.candidatePhoto || '';  // Column H: Candidate Photo (auto-filled from selected candidate)
+    rowData[8] = joiningFormData.currentAddress;  // Column I: Current Address
+    rowData[9] = joiningFormData.dobAsPerAadhar; // Column J: Date Of Birth
+    rowData[10] = joiningFormData.gender;      // Column K: Gender
+    rowData[11] = joiningFormData.mobileNo; // Column L: Mobile No.
+    rowData[12] = joiningFormData.familyMobileNo; // Column M: Family Mobile Number
+    rowData[13] = joiningFormData.relationshipWithFamily; // Column N: Relationship With Family
+    rowData[14] = joiningFormData.currentBankAc; // Column O: Current Account No
+    rowData[15] = joiningFormData.ifscCode;    // Column P: IFSC Code
+    rowData[16] = joiningFormData.branchName;  // Column Q: Branch Name
+    rowData[17] = fileUrls.bankPassbookPhoto;  // Column R: Photo Of Front Bank Passbook
+    rowData[18] = joiningFormData.personalEmail; // Column S: Candidate Email
+    rowData[19] = joiningFormData.highestQualification; // Column T: Highest Qualification
+    rowData[20] = joiningFormData.department;  // Column U: Department
+    rowData[21] = joiningFormData.equipment;   // Column V: Equipment
+    rowData[22] = joiningFormData.aadharCardNo;       // Column W: Aadhar Number
+    rowData[23] = selectedCandidate?.candidateResume || ''; // Column X: Candidate Resume (auto-filled from selected candidate)
+    rowData[24] = "";
+    rowData[25] = "";
+    rowData[26] = formattedTimestamp; // Column AA: Actual Date
+
+    await postToJoiningSheet(rowData);
+
+    // Update ENQUIRY sheet Column AB with the timestamp if candidate was selected
+    if (selectedCandidate?.candidateEnquiryNo) {
+      // Send second POST request to update Column AB
+      const updateParams = new URLSearchParams();
+      updateParams.append('action', 'updateEnquiryColumn');
+      updateParams.append('sheetName', 'ENQUIRY');
+      updateParams.append('enquiryNo', selectedCandidate.candidateEnquiryNo);
+      updateParams.append('timestamp', formattedTimestamp);
+
+      const updateResponse = await fetch(
+        'https://script.google.com/macros/s/AKfycbwfGaiHaPhexcE9i-A7q9m81IX6zWqpr4lZBe4AkhlTjVl4wCl0v_ltvBibfduNArBVoA/exec',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: updateParams,
+        }
       );
 
-      // Map uploaded URLs to their respective fields
-      const fileUrls = {};
-      Object.keys(uploadPromises).forEach((field, index) => {
-        fileUrls[field] = uploadedUrls[index];
-      });
+      if (!updateResponse.ok) {
+        throw new Error(`HTTP error! status: ${updateResponse.status}`);
+      }
 
-      // Format the timestamp in the required format: 9/8/2025 10:55:38
-      const now = new Date();
-      const formattedTimestamp = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+      const updateResult = await updateResponse.json();
       
-      // Create an array with all column values in order
-      const rowData = [];
-      
-      // Assign values directly to array indices according to specified columns
-      rowData[0] = formattedTimestamp;           // Column A: Timestamp
-      rowData[1] = joiningFormData.joiningId;    // Column B: Joining ID
-      rowData[2] = joiningFormData.nameAsPerAadhar;   // Column C: Name As Per Aadhar
-      rowData[3] = joiningFormData.fatherName;   // Column D: Father Name
-      rowData[4] = joiningFormData.dateOfJoining; // Column E: Date Of Joining
-      rowData[5] = joiningFormData.designation; // Column F: Designation
-      rowData[6] = fileUrls.aadharFrontPhoto;    // Column G: Aadhar card
-      rowData[7] = '';  // Column H: Candidate Photo
-      rowData[8] = joiningFormData.currentAddress;  // Column I: Current Address
-      rowData[9] = joiningFormData.dobAsPerAadhar; // Column J: Date Of Birth
-      rowData[10] = joiningFormData.gender;      // Column K: Gender
-      rowData[11] = joiningFormData.mobileNo; // Column L: Mobile No.
-      rowData[12] = joiningFormData.familyMobileNo; // Column M: Family Mobile Number
-      rowData[13] = joiningFormData.relationshipWithFamily; // Column N: Relationship With Family
-      rowData[14] = joiningFormData.currentBankAc; // Column O: Current Account No
-      rowData[15] = joiningFormData.ifscCode;    // Column P: IFSC Code
-      rowData[16] = joiningFormData.branchName;  // Column Q: Branch Name
-      rowData[17] = fileUrls.bankPassbookPhoto;  // Column R: Photo Of Front Bank Passbook
-      rowData[18] = joiningFormData.personalEmail; // Column S: Candidate Email
-      rowData[19] = joiningFormData.highestQualification; // Column T: Highest Qualification
-      rowData[20] = joiningFormData.department;  // Column U: Department
-      rowData[21] = joiningFormData.equipment;   // Column V: Equipment
-      rowData[22] = joiningFormData.aadharCardNo;       // Column W: Aadhar Number
-      rowData[23] = ''; // Column X: Candidate Resume
-      rowData[24] = "";
-      rowData[25] = "";
-      rowData[26] = formattedTimestamp; // Column AA: Actual Date
-
-      await postToJoiningSheet(rowData);
-
-      console.log("Joining Form Data:", rowData);
-
-      toast.success('Employee added successfully!');
-      setShowJoiningModal(false);
-      
-      // Reset form
-      setJoiningFormData({
-        joiningId: '',
-        nameAsPerAadhar: '',
-        fatherName: '',
-        dateOfJoining: '',
-        joiningPlace: '',
-        designation: '',
-        salary: '',
-        aadharFrontPhoto: null,
-        aadharBackPhoto: null,
-        panCard: null,
-        candidatePhoto: null,
-        currentAddress: '',
-        addressAsPerAadhar: '',
-        dobAsPerAadhar: '',
-        gender: '',
-        mobileNo: '',
-        familyMobileNo: '',
-        relationshipWithFamily: '',
-        pastPfId: '',
-        currentBankAc: '',
-        ifscCode: '',
-        branchName: '',
-        bankPassbookPhoto: null,
-        personalEmail: '',
-        esicNo: '',
-        highestQualification: '',
-        pfEligible: '',
-        esicEligible: '',
-        joiningCompanyName: '',
-        emailToBeIssue: '',
-        issueMobile: '',
-        issueLaptop: '',
-        aadharCardNo: '',
-        modeOfAttendance: '',
-        qualificationPhoto: null,
-        paymentMode: '',
-        salarySlip: null,
-        resumeCopy: null,
-        department: '',
-        equipment: ''
-      });
-    } catch (error) {
-      console.error('Error submitting joining form:', error);
-      toast.error(`Failed to submit joining form: ${error.message}`);
-    } finally {
-      setSubmitting(false);
+      if (!updateResult.success) {
+        throw new Error(updateResult.error || 'Failed to update enquiry column');
+      }
     }
-  };
+
+    console.log("Joining Form Data:", rowData);
+
+    toast.success('Employee added successfully!');
+    setShowJoiningModal(false);
+    
+    // Reset form
+    setJoiningFormData({
+      joiningId: '',
+      nameAsPerAadhar: '',
+      fatherName: '',
+      dateOfJoining: '',
+      joiningPlace: '',
+      designation: '',
+      salary: '',
+      aadharFrontPhoto: null,
+      aadharBackPhoto: null,
+      panCard: null,
+      candidatePhoto: null,
+      currentAddress: '',
+      addressAsPerAadhar: '',
+      dobAsPerAadhar: '',
+      gender: '',
+      mobileNo: '',
+      familyMobileNo: '',
+      relationshipWithFamily: '',
+      pastPfId: '',
+      currentBankAc: '',
+      ifscCode: '',
+      branchName: '',
+      bankPassbookPhoto: null,
+      personalEmail: '',
+      esicNo: '',
+      highestQualification: '',
+      pfEligible: '',
+      esicEligible: '',
+      joiningCompanyName: '',
+      emailToBeIssue: '',
+      issueMobile: '',
+      issueLaptop: '',
+      aadharCardNo: '',
+      modeOfAttendance: '',
+      qualificationPhoto: null,
+      paymentMode: '',
+      salarySlip: null,
+      resumeCopy: null,
+      department: '',
+      equipment: ''
+    });
+    setSelectedCandidate(null);
+    setShowCandidateList(true);
+  } catch (error) {
+    console.error('Error submitting joining form:', error);
+    toast.error(`Failed to submit joining form: ${error.message}`);
+  } finally {
+    setSubmitting(false);
+  }
+};
+
+const filteredEnquiryData = enquiryData.filter(item => {
+  const matchesSearch = item.candidateName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                       item.applyingForPost?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                       item.candidatePhone?.toLowerCase().includes(searchTerm.toLowerCase());
+  
+  // Only show candidates where Column AB is null/empty
+  const hasNullColumnAB = !item.columnAB;
+  
+  return matchesSearch && hasNullColumnAB;
+});
+
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-6">
@@ -300,13 +501,103 @@ const Joining = () => {
               <X size={24} />
             </button>
           </div>
+
+          {/* Candidate Selection Section */}
+          {showCandidateList && (
+            <div className="p-4 md:p-6 border-b border-gray-200">
+              <h2 className="text-lg font-medium text-gray-900 mb-4">Select Candidate (Optional)</h2>
+              
+              <div className="mb-4">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search candidates by name as per aadhar..."
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                </div>
+              </div>
+
+              {loading ? (
+                <div className="text-center py-4">
+                  <div className="w-6 h-6 border-4 border-indigo-500 border-dashed rounded-full animate-spin mx-auto mb-2"></div>
+                  <span className="text-gray-600">Loading candidates...</span>
+                </div>
+              ) : (
+                <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-lg">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Post</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Department</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {filteredEnquiryData.slice(0, 10).map((candidate, index) => (
+                        <tr key={index} className="hover:bg-gray-50">
+                          <td className="px-4 py-2 text-sm text-gray-900">{candidate.candidateName}</td>
+                          <td className="px-4 py-2 text-sm text-gray-900">{candidate.applyingForPost}</td>
+                          <td className="px-4 py-2 text-sm text-gray-900">{candidate.candidatePhone}</td>
+                          <td className="px-4 py-2 text-sm text-gray-900">{candidate.department}</td>
+                          <td className="px-4 py-2">
+                            <button
+                              onClick={() => handleCandidateSelect(candidate)}
+                              className="px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700"
+                            >
+                              Select
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <div className="mt-4">
+                <button
+                  onClick={() => setShowCandidateList(false)}
+                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                >
+                  Skip & Fill Manually
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Selected Candidate Info */}
+          {selectedCandidate && !showCandidateList && (
+            <div className="p-4 bg-blue-50 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm font-medium text-blue-900">Selected Candidate:</p>
+                  <p className="text-lg font-semibold text-blue-800">{selectedCandidate.candidateName}</p>
+                  <p className="text-sm text-blue-700">{selectedCandidate.applyingForPost} - {selectedCandidate.department}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedCandidate(null);
+                    setShowCandidateList(true);
+                  }}
+                  className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                >
+                  Change
+                </button>
+              </div>
+            </div>
+          )}
           
           <form onSubmit={handleJoiningSubmit} className="p-4 md:p-6 space-y-6">
             {/* Section 1: Basic Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Joining ID *
+                  Joining ID 
                 </label>
                 <input
                   type="text"
@@ -314,7 +605,6 @@ const Joining = () => {
                   value={joiningFormData.joiningId}
                   onChange={handleJoiningInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700"
-                  required
                 />
               </div>
 
@@ -475,19 +765,6 @@ const Joining = () => {
                   required
                 />
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Address As Per Aadhar
-                </label>
-                <textarea
-                  name="addressAsPerAadhar"
-                  value={joiningFormData.addressAsPerAadhar}
-                  onChange={handleJoiningInputChange}
-                  rows={3}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700"
-                />
-              </div>
             </div>
 
             {/* Section 4: Employment Details */}
@@ -527,19 +804,6 @@ const Joining = () => {
                 <input
                   name="highestQualification"
                   value={joiningFormData.highestQualification}
-                  onChange={handleJoiningInputChange}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Salary
-                </label>
-                <input
-                  type="number"
-                  name="salary"
-                  value={joiningFormData.salary}
                   onChange={handleJoiningInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700"
                 />
@@ -658,6 +922,50 @@ const Joining = () => {
               </div>
             </div>
 
+            {/* Auto-filled candidate data display */}
+            {selectedCandidate && (
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Auto-filled from Selected Candidate</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Candidate Photo
+                    </label>
+                    {selectedCandidate.candidatePhoto ? (
+                      <a
+                        href={selectedCandidate.candidatePhoto}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-indigo-600 hover:text-indigo-800 text-sm"
+                      >
+                        View Photo
+                      </a>
+                    ) : (
+                      <span className="text-sm text-gray-500">Not available</span>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Candidate Resume
+                    </label>
+                    {selectedCandidate.candidateResume ? (
+                      <a
+                        href={selectedCandidate.candidateResume}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-indigo-600 hover:text-indigo-800 text-sm"
+                      >
+                        View Resume
+                      </a>
+                    ) : (
+                      <span className="text-sm text-gray-500">Not available</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Form Actions */}
             <div className="flex justify-end space-x-2 pt-4">
               <button
@@ -710,4 +1018,4 @@ const Joining = () => {
   );
 };
 
-export default Joining;
+export default JoiningForm;
