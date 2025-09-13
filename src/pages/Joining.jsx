@@ -114,6 +114,20 @@ const fetchEnquiryData = async () => {
         .filter(candidate => candidate.columnAA && !candidate.columnAB);
 
       setEnquiryData(processedEnquiryData);
+      
+      // Check if URL has enquiry parameter and auto-select candidate
+      const urlParams = new URLSearchParams(window.location.search);
+      const enquiryParam = urlParams.get('enquiry');
+      
+      if (enquiryParam) {
+        const candidateFromURL = processedEnquiryData.find(
+          candidate => candidate.candidateEnquiryNo === enquiryParam
+        );
+        
+        if (candidateFromURL) {
+          handleCandidateSelect(candidateFromURL);
+        }
+      }
     } catch (error) {
       console.error("Error fetching enquiry data:", error);
       toast.error("Failed to fetch candidate data");
@@ -121,6 +135,10 @@ const fetchEnquiryData = async () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchEnquiryData();
+  }, []);
 
   useEffect(() => {
     fetchEnquiryData();
@@ -507,7 +525,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
             <div className="p-4 md:p-6 border-b border-gray-200">
               <h2 className="text-lg font-medium text-gray-900 mb-4">Select Candidate (Optional)</h2>
               
-              <div className="mb-4">
+              {/* <div className="mb-4">
                 <div className="relative">
                   <input
                     type="text"
@@ -518,7 +536,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
                   />
                   <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 </div>
-              </div>
+              </div> */}
 
               {loading ? (
                 <div className="text-center py-4">
@@ -531,9 +549,9 @@ const filteredEnquiryData = enquiryData.filter(item => {
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Post</th>
+                        {/* <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Post</th>
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Department</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Department</th> */}
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
                       </tr>
                     </thead>
@@ -541,9 +559,9 @@ const filteredEnquiryData = enquiryData.filter(item => {
                       {filteredEnquiryData.slice(0, 10).map((candidate, index) => (
                         <tr key={index} className="hover:bg-gray-50">
                           <td className="px-4 py-2 text-sm text-gray-900">{candidate.candidateName}</td>
-                          <td className="px-4 py-2 text-sm text-gray-900">{candidate.applyingForPost}</td>
+                          {/* <td className="px-4 py-2 text-sm text-gray-900">{candidate.applyingForPost}</td>
                           <td className="px-4 py-2 text-sm text-gray-900">{candidate.candidatePhone}</td>
-                          <td className="px-4 py-2 text-sm text-gray-900">{candidate.department}</td>
+                          <td className="px-4 py-2 text-sm text-gray-900">{candidate.department}</td> */}
                           <td className="px-4 py-2">
                             <button
                               onClick={() => handleCandidateSelect(candidate)}
