@@ -521,11 +521,11 @@ const filteredEnquiryData = enquiryData.filter(item => {
           </div>
 
           {/* Candidate Selection Section */}
-          {showCandidateList && (
+          {/* {showCandidateList && (
             <div className="p-4 md:p-6 border-b border-gray-200">
               <h2 className="text-lg font-medium text-gray-900 mb-4">Select Candidate (Optional)</h2>
               
-              {/* <div className="mb-4">
+              <div className="mb-4">
                 <div className="relative">
                   <input
                     type="text"
@@ -536,7 +536,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
                   />
                   <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 </div>
-              </div> */}
+              </div>
 
               {loading ? (
                 <div className="text-center py-4">
@@ -549,9 +549,9 @@ const filteredEnquiryData = enquiryData.filter(item => {
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                        {/* <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Post</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Post</th>
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Department</th> */}
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Department</th>
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
                       </tr>
                     </thead>
@@ -559,9 +559,9 @@ const filteredEnquiryData = enquiryData.filter(item => {
                       {filteredEnquiryData.slice(0, 10).map((candidate, index) => (
                         <tr key={index} className="hover:bg-gray-50">
                           <td className="px-4 py-2 text-sm text-gray-900">{candidate.candidateName}</td>
-                          {/* <td className="px-4 py-2 text-sm text-gray-900">{candidate.applyingForPost}</td>
+                          <td className="px-4 py-2 text-sm text-gray-900">{candidate.applyingForPost}</td>
                           <td className="px-4 py-2 text-sm text-gray-900">{candidate.candidatePhone}</td>
-                          <td className="px-4 py-2 text-sm text-gray-900">{candidate.department}</td> */}
+                          <td className="px-4 py-2 text-sm text-gray-900">{candidate.department}</td>
                           <td className="px-4 py-2">
                             <button
                               onClick={() => handleCandidateSelect(candidate)}
@@ -586,7 +586,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
                 </button>
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Selected Candidate Info */}
           {selectedCandidate && !showCandidateList && (
@@ -597,7 +597,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
                   <p className="text-lg font-semibold text-blue-800">{selectedCandidate.candidateName}</p>
                   <p className="text-sm text-blue-700">{selectedCandidate.applyingForPost} - {selectedCandidate.department}</p>
                 </div>
-                <button
+                {/* <button
                   onClick={() => {
                     setSelectedCandidate(null);
                     setShowCandidateList(true);
@@ -605,7 +605,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
                   className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
                 >
                   Change
-                </button>
+                </button> */}
               </div>
             </div>
           )}
