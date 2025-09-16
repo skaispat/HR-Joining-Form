@@ -615,7 +615,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Joining ID 
+                  Joining ID (जॉइनिंग आईडी)
                 </label>
                 <input
                   type="text"
@@ -628,7 +628,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Name As Per Aadhar *
+                  Name As Per Aadhar (नाम आधार के अनुसार) *
                 </label>
                 <input
                   type="text"
@@ -642,7 +642,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Father Name
+                  Father Name (पिता का नाम)
                 </label>
                 <input
                   type="text"
@@ -655,7 +655,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date Of Birth As per Aadhar *
+                  Date Of Birth As per Aadhar (आधार के अनुसार जन्मतिथि) *
                 </label>
                 <input
                   type="date"
@@ -669,7 +669,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Gender
+                  Gender (लिंग)
                 </label>
                 <select
                   name="gender"
@@ -686,7 +686,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Department
+                  Department (विभाग)
                 </label>
                 <input
                   type="text"
@@ -699,7 +699,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Equipment
+                  Equipment (उपकरण)
                 </label>
                 <input
                   type="text"
@@ -715,7 +715,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Mobile No. *
+                  Mobile No. (मोबाइल नंबर) *
                 </label>
                 <input
                   type="tel"
@@ -729,7 +729,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Personal Email *
+                  Personal Email (व्यक्तिगत ईमेल) *
                 </label>
                 <input
                   type="email"
@@ -743,7 +743,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Family Mobile Number *
+                  Family Mobile Number (परिवार का मोबाइल नंबर) *
                 </label>
                 <input
                   name="familyMobileNo"
@@ -756,7 +756,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Relationship With Family *
+                  Relationship With Family (परिवार के साथ संबंध) *
                 </label>
                 <input
                   name="relationshipWithFamily"
@@ -772,7 +772,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Current Address *
+                  Current Address (वर्त्तमान पता) *
                 </label>
                 <textarea
                   name="currentAddress"
@@ -789,7 +789,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date Of Joining *
+                  Date Of Joining (जॉइनिंग की तारीख) *
                 </label>
                 <input
                   type="date"
@@ -803,7 +803,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Designation *
+                  Designation (पद का नाम) *
                 </label>
                 <input
                   type="text"
@@ -817,7 +817,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Highest Qualification
+                  Highest Qualification (उच्चतम योग्यता)
                 </label>
                 <input
                   name="highestQualification"
@@ -832,7 +832,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Aadhar Card Number *
+                  Aadhar Card Number (आधार कार्ड नंबर) *
                 </label>
                 <input
                   name="aadharCardNo"
@@ -845,7 +845,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Current Bank Account No*
+                  Current Bank Account No (बैंक खाता संख्या)*
                 </label>
                 <input
                   name="currentBankAc"
@@ -858,7 +858,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  IFSC Code*
+                  IFSC Code (आईएफएससी कोड) *
                 </label>
                 <input
                   name="ifscCode"
@@ -871,7 +871,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Branch Name*
+                  Branch Name (शाखा का नाम) *
                 </label>
                 <input
                   name="branchName"
@@ -887,7 +887,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Aadhar Card (Front)
+                  Aadhar Card (आधार कार्ड)
                 </label>
                 <div className="flex items-center space-x-2">
                   <input
@@ -914,7 +914,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Photo Of Front Bank Passbook
+                  Photo Of Front Bank Passbook (बैंक पासबुक का फोटो)
                 </label>
                 <div className="flex items-center space-x-2">
                   <input
