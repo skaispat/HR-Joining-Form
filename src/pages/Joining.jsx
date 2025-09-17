@@ -520,74 +520,6 @@ const filteredEnquiryData = enquiryData.filter(item => {
             </button>
           </div>
 
-          {/* Candidate Selection Section */}
-          {/* {showCandidateList && (
-            <div className="p-4 md:p-6 border-b border-gray-200">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">Select Candidate (Optional)</h2>
-              
-              <div className="mb-4">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search candidates by name as per aadhar..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                  <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                </div>
-              </div>
-
-              {loading ? (
-                <div className="text-center py-4">
-                  <div className="w-6 h-6 border-4 border-indigo-500 border-dashed rounded-full animate-spin mx-auto mb-2"></div>
-                  <span className="text-gray-600">Loading candidates...</span>
-                </div>
-              ) : (
-                <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-lg">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Post</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Department</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {filteredEnquiryData.slice(0, 10).map((candidate, index) => (
-                        <tr key={index} className="hover:bg-gray-50">
-                          <td className="px-4 py-2 text-sm text-gray-900">{candidate.candidateName}</td>
-                          <td className="px-4 py-2 text-sm text-gray-900">{candidate.applyingForPost}</td>
-                          <td className="px-4 py-2 text-sm text-gray-900">{candidate.candidatePhone}</td>
-                          <td className="px-4 py-2 text-sm text-gray-900">{candidate.department}</td>
-                          <td className="px-4 py-2">
-                            <button
-                              onClick={() => handleCandidateSelect(candidate)}
-                              className="px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700"
-                            >
-                              Select
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              <div className="mt-4">
-                <button
-                  onClick={() => setShowCandidateList(false)}
-                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                >
-                  Skip & Fill Manually
-                </button>
-              </div>
-            </div>
-          )} */}
-
           {/* Selected Candidate Info */}
           {selectedCandidate && !showCandidateList && (
             <div className="p-4 bg-blue-50 border-b border-gray-200">
@@ -597,15 +529,6 @@ const filteredEnquiryData = enquiryData.filter(item => {
                   <p className="text-lg font-semibold text-blue-800">{selectedCandidate.candidateName}</p>
                   <p className="text-sm text-blue-700">{selectedCandidate.applyingForPost} - {selectedCandidate.department}</p>
                 </div>
-                {/* <button
-                  onClick={() => {
-                    setSelectedCandidate(null);
-                    setShowCandidateList(true);
-                  }}
-                  className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
-                >
-                  Change
-                </button> */}
               </div>
             </div>
           )}
@@ -628,7 +551,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Name As Per Aadhar (नाम आधार के अनुसार) *
+                  Name As Per Aadhar (नाम आधार के अनुसार)
                 </label>
                 <input
                   type="text"
@@ -636,7 +559,6 @@ const filteredEnquiryData = enquiryData.filter(item => {
                   value={joiningFormData.nameAsPerAadhar}
                   onChange={handleJoiningInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700"
-                  required
                 />
               </div>
               
@@ -655,7 +577,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date Of Birth As per Aadhar (आधार के अनुसार जन्मतिथि) *
+                  Date Of Birth As per Aadhar (आधार के अनुसार जन्मतिथि)
                 </label>
                 <input
                   type="date"
@@ -663,7 +585,6 @@ const filteredEnquiryData = enquiryData.filter(item => {
                   value={joiningFormData.dobAsPerAadhar}
                   onChange={handleJoiningInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700"
-                  required
                 />
               </div>
               
@@ -715,7 +636,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Mobile No. (मोबाइल नंबर) *
+                  Mobile No. (मोबाइल नंबर)
                 </label>
                 <input
                   type="tel"
@@ -723,13 +644,12 @@ const filteredEnquiryData = enquiryData.filter(item => {
                   value={joiningFormData.mobileNo}
                   onChange={handleJoiningInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700"
-                  required
                 />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Personal Email (व्यक्तिगत ईमेल) *
+                  Personal Email (व्यक्तिगत ईमेल)
                 </label>
                 <input
                   type="email"
@@ -737,33 +657,30 @@ const filteredEnquiryData = enquiryData.filter(item => {
                   value={joiningFormData.personalEmail}
                   onChange={handleJoiningInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700"
-                  required
                 />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Family Mobile Number (परिवार का मोबाइल नंबर) *
+                  Family Mobile Number (परिवार का मोबाइल नंबर)
                 </label>
                 <input
                   name="familyMobileNo"
                   value={joiningFormData.familyMobileNo}
                   onChange={handleJoiningInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700"
-                  required
                 />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Relationship With Family (परिवार के साथ संबंध) *
+                  Relationship With Family (परिवार के साथ संबंध)
                 </label>
                 <input
                   name="relationshipWithFamily"
                   value={joiningFormData.relationshipWithFamily}
                   onChange={handleJoiningInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700"
-                  required
                 />
               </div>
             </div>
@@ -772,7 +689,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Current Address (वर्त्तमान पता) *
+                  Current Address (वर्त्तमान पता)
                 </label>
                 <textarea
                   name="currentAddress"
@@ -780,7 +697,6 @@ const filteredEnquiryData = enquiryData.filter(item => {
                   onChange={handleJoiningInputChange}
                   rows={3}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700"
-                  required
                 />
               </div>
             </div>
@@ -789,7 +705,7 @@ const filteredEnquiryData = enquiryData.filter(item => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date Of Joining (जॉइनिंग की तारीख) *
+                  Date Of Joining (जॉइनिंग की तारीख)
                 </label>
                 <input
                   type="date"
@@ -797,13 +713,12 @@ const filteredEnquiryData = enquiryData.filter(item => {
                   value={joiningFormData.dateOfJoining}
                   onChange={handleJoiningInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700"
-                  required
                 />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Designation (पद का नाम) *
+                  Designation (पद का नाम)
                 </label>
                 <input
                   type="text"
@@ -811,7 +726,6 @@ const filteredEnquiryData = enquiryData.filter(item => {
                   value={joiningFormData.designation}
                   onChange={handleJoiningInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700"
-                  required
                 />
               </div>
               
@@ -832,53 +746,49 @@ const filteredEnquiryData = enquiryData.filter(item => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Aadhar Card Number (आधार कार्ड नंबर) *
+                  Aadhar Card Number (आधार कार्ड नंबर)
                 </label>
                 <input
                   name="aadharCardNo"
                   value={joiningFormData.aadharCardNo}
                   onChange={handleJoiningInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700"
-                  required
                 />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Current Bank Account No (बैंक खाता संख्या)*
+                  Current Bank Account No (बैंक खाता संख्या)
                 </label>
                 <input
                   name="currentBankAc"
                   value={joiningFormData.currentBankAc}
                   onChange={handleJoiningInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700"
-                  required
                 />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  IFSC Code (आईएफएससी कोड) *
+                  IFSC Code (आईएफएससी कोड)
                 </label>
                 <input
                   name="ifscCode"
                   value={joiningFormData.ifscCode}
                   onChange={handleJoiningInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700"
-                  required
                 />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Branch Name (शाखा का नाम) *
+                  Branch Name (शाखा का नाम)
                 </label>
                 <input
                   name="branchName"
                   value={joiningFormData.branchName}
                   onChange={handleJoiningInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700"
-                  required
                 />
               </div>
             </div>
